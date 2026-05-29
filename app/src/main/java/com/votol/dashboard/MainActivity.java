@@ -714,7 +714,7 @@ public class MainActivity extends AppCompatActivity {
                     }
 
                     if (msg.length() > 0) {
-                        debug("WIFI JSON=" + msg);
+                        //debug("WIFI JSON=" + msg);
                         processJSON(msg, "wifi");
                     }
                 }
@@ -793,7 +793,7 @@ public class MainActivity extends AppCompatActivity {
                 }
 
                 scanning = true;
-                debug("BLE SCAN START");
+                //debug("BLE SCAN START");
                 scanner.startScan(scanCallback);
 
                 /*
@@ -980,12 +980,14 @@ public class MainActivity extends AppCompatActivity {
                                 true
                         );
 
-                debug(
+                /*
+                //debug(
                         "BLE ENABLE DASHBOARD NOTIFY "
                                 + characteristic.getUuid()
                                 + " result="
                                 + notifyOk
                 );
+                */
 
                 if (!notifyOk) {
                     handleDisconnectedGatt(gatt);
@@ -998,7 +1000,7 @@ public class MainActivity extends AppCompatActivity {
                         );
 
                 if (descriptor == null) {
-                    debug("BLE DASHBOARD CCCD NULL");
+                    //debug("BLE DASHBOARD CCCD NULL");
                     handleDisconnectedGatt(gatt);
                     return;
                 }
@@ -1011,7 +1013,7 @@ public class MainActivity extends AppCompatActivity {
                 boolean writeOk =
                         gatt.writeDescriptor(descriptor);
 
-                debug("BLE DASHBOARD CCCD WRITE result=" + writeOk);
+                //debug("BLE DASHBOARD CCCD WRITE result=" + writeOk);
 
                 if (!writeOk) {
                     handleDisconnectedGatt(gatt);
@@ -1057,7 +1059,7 @@ public class MainActivity extends AppCompatActivity {
                     String json = buffer.substring(start, end + 1);
                     bleJsonBuffer.delete(0, end + 1);
 
-                    debug("BLE JSON=" + json);
+                    //debug("BLE JSON=" + json);
                     processJSON(json, "ble");
                 }
             }
@@ -1138,7 +1140,7 @@ public class MainActivity extends AppCompatActivity {
                             } catch (Exception ignored) {
                             }
 
-                            debug("BLE CONNECTED");
+                            //debug("BLE CONNECTED");
 
                             /*
                              * ESP32 BLE is much more stable with:
@@ -1152,7 +1154,7 @@ public class MainActivity extends AppCompatActivity {
                              */
                             mainHandler.postDelayed(() -> {
                                 if (appRunning && connected) {
-                                    debug("BLE discoverServices");
+                                    //debug("BLE discoverServices");
                                     startServiceDiscovery(gatt);
                                 }
                             }, 300);
@@ -1168,7 +1170,7 @@ public class MainActivity extends AppCompatActivity {
                             int mtu,
                             int status
                     ) {
-                        debug("BLE MTU mtu=" + mtu + " status=" + status);
+                        //debug("BLE MTU mtu=" + mtu + " status=" + status);
                     }
 
                     @Override
@@ -1192,7 +1194,7 @@ public class MainActivity extends AppCompatActivity {
                                                 .toString()
                                                 .toLowerCase(Locale.US);
 
-                                debug("BLE CHAR " + uuid);
+                                //debug("BLE CHAR " + uuid);
 
                                 if (DASHBOARD_NOTIFY_UUID.equals(uuid)) {
                                     dashboardNotifyCharacteristic = characteristic;
@@ -1201,7 +1203,7 @@ public class MainActivity extends AppCompatActivity {
                         }
 
                         if (dashboardNotifyCharacteristic == null) {
-                            debug("BLE DASHBOARD NOTIFY CHAR NOT FOUND");
+                            //debug("BLE DASHBOARD NOTIFY CHAR NOT FOUND");
                             handleDisconnectedGatt(gatt);
                             return;
                         }
@@ -1218,12 +1220,14 @@ public class MainActivity extends AppCompatActivity {
                             BluetoothGattDescriptor descriptor,
                             int status
                     ) {
-                        debug(
+                        /*
+                        //debug(
                                 "BLE DESCRIPTOR WRITE status="
                                         + status
                                         + " uuid="
                                         + descriptor.getUuid()
                         );
+                        */
 
                         mainHandler.postDelayed(() -> {
                             try {
@@ -1235,10 +1239,12 @@ public class MainActivity extends AppCompatActivity {
                                     boolean mtuResult =
                                             gatt.requestMtu(BLE_REQUESTED_MTU);
 
-                                    debug(
+                                    /*
+                                    //debug(
                                             "BLE requestMtu247 after CCCD="
                                                     + mtuResult
                                     );
+                                    */
                                 }
                             } catch (Exception ignored) {
                             }
@@ -1269,7 +1275,7 @@ public class MainActivity extends AppCompatActivity {
                             String chunk =
                                     new String(value, StandardCharsets.UTF_8);
 
-                            debug("BLE CHUNK=" + chunk);
+                            //debug("BLE CHUNK=" + chunk);
                             handleBleChunk(chunk);
 
                         } catch (Exception ignored) {
@@ -1587,6 +1593,7 @@ public class MainActivity extends AppCompatActivity {
      * Filter Logcat by tag:
      * VOTOL_DEBUG
      */
+    /*
     private synchronized void debug(String text) {
         try {
             String time =
@@ -1612,6 +1619,7 @@ public class MainActivity extends AppCompatActivity {
         } catch (Exception ignored) {
         }
     }
+    */
 
     private void initDebugLogger() {
         try {
