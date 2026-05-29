@@ -1,0 +1,941 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>VOTOL EV Dashboard</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+
+<style>
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+body{
+    background:#000;
+    overflow:hidden;
+    font-family:'Orbitron',sans-serif;
+    color:white;
+}
+
+.dashboard{
+    width:100vw;
+    height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    overflow: hidden;
+    background:
+        radial-gradient(circle at center,#111 0%,#000 75%);
+}
+
+.panel {
+    width: 1280px;
+    height: 720px;
+    position: relative;
+    transform-origin: center;
+    flex-shrink: 0;
+}
+
+/* ===================================================== */
+/* GAUGE */
+/* ===================================================== */
+
+.gauge{
+    width:560px;
+    height:560px;
+    position:absolute;
+    left:50%;
+    top:50%;
+    transform:translate(-50%,-50%);
+    border-radius:50%;
+
+    background:
+        radial-gradient(circle at center,
+        #000 0%,
+        #111 34%,
+        #f5c228 35%,
+        #f0bc20 65%,
+        #111 66%,
+        #050505 100%);
+
+    border:8px solid #555;
+
+    box-shadow:
+        0 0 60px rgba(255,180,0,.25),
+        inset 0 0 60px rgba(0,0,0,.8);
+    z-index:10;
+}
+
+/* ===================================================== */
+/* CENTER */
+/* ===================================================== */
+
+.center-core{
+    width:160px;
+    height:160px;
+    border-radius:50%;
+    background:#050505;
+    position:absolute;
+    left:50%;
+    top:50%;
+    transform:translate(-50%,-50%);
+    border:8px solid #555;
+    z-index:20;
+}
+
+.center-cap{
+    width:50px;
+    height:50px;
+    background:#111;
+    border-radius:50%;
+    position:absolute;
+    left:50%;
+    top:50%;
+    transform:translate(-50%,-50%);
+    border:4px solid #333;
+    z-index:30;
+}
+
+/* ===================================================== */
+/* LABEL */
+/* ===================================================== */
+
+.gauge-label{
+    position:absolute;
+    top:100px;
+    width:100%;
+    text-align:center;
+    font-size:34px;
+    font-weight:700;
+    color:#222;
+    z-index:10;
+}
+
+/* ===================================================== */
+/* TICKS */
+/* ===================================================== */
+
+.tick{
+    width:5px;
+    height:30px;
+    background:#222;
+    position:absolute;
+    left:50%;
+    top:0px;
+    transform-origin:center 273px;
+    border-radius:10px;
+}
+
+.tick.red{
+    background:#b00000;
+    height:30px;
+}
+
+.tick.small{
+    height:15px;
+    width:3px;
+    background:#664400;
+}
+
+/* ===================================================== */
+/* NUMBERS */
+/* ===================================================== */
+
+.number{
+    position:absolute;
+    font-size:54px;
+    font-weight:900;
+    color:#111;
+}
+
+.number.red{
+    color:#b00000;
+}
+
+/* ===================================================== */
+/* NEEDLE */
+/* ===================================================== */
+
+.needle{
+    width:240px;
+    height:10px;
+    background:
+        linear-gradient(to right,
+        #ffce9f,
+        #ff2a2a);
+
+    position:absolute;
+    left:50%;
+    top:49%;
+
+    transform-origin:0% 50%;
+    transform:rotate(90deg);
+
+    border-radius:10px;
+
+    z-index:15;
+
+    box-shadow:
+        0 0 25px rgba(255,0,0,.6);
+}
+
+.needle-tail{
+    width:120px;
+    height:20px;
+    background:
+        linear-gradient(to right,
+        #ffce9f,
+        #ff2a2a);
+
+    position:absolute;
+    left:50%;
+    top:48%;
+
+    transform-origin:0% 50%;
+    transform:rotate(270deg);
+
+    border-radius:10px;
+
+    z-index:15;
+
+    box-shadow:
+        0 0 25px rgba(255,0,0,.6);
+}
+
+/* ===================================================== */
+/* SPEED BOX */
+/* ===================================================== */
+
+.speed-box{
+
+    width:358px;
+    height:160px;
+
+    background:#050505;
+
+    position:absolute;
+
+    left:260px;
+    top:50%;
+    transform: translateY(-50%);
+
+    clip-path: polygon(
+        3% 0%, 100% 0%, 100% 0%, 100% 100%, 
+        100% 100%, 3% 100%, 3% 100%, 3% 0%
+    );
+
+    border:8px solid #555;
+
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    align-items:flex-end;
+    padding-right: 25px;
+    box-shadow: 10px 0 30px rgba(0,0,0,0.8);
+
+    z-index:30;
+}
+
+.speed{
+    font-size:100px;
+    font-weight:700;
+    line-height:1;
+    color:#fff0a0;
+}
+
+.kmh{
+    font-size:25px;
+    color:#ddd;
+}
+
+/* ===================================================== */
+/* RPM INFO */
+/* ===================================================== */
+
+.rpm-info {
+    width:129px;
+    height:100px;
+    position:absolute;
+    left:72%;
+    top:33%;
+    transform:translate(-50%,-50%);
+    align-items:flex-end;
+    background:#050505;
+    border:8px solid #333;
+    box-shadow: 10px 0 30px rgba(0,0,0,0.8);
+
+    font-size: 24px;
+    color: #fff0a0;
+    letter-spacing: 1px;
+    text-align: right;
+    padding-right: 15px;
+    padding-top: 15px;
+}
+
+.rpm-unit {
+    font-size: 14px;
+    opacity: 0.8;
+    color:#ccc;
+    padding-top: 5px;
+}
+
+/* ===================================================== */
+/* BATTERY */
+/* ===================================================== */
+
+.battery-section{
+    position:absolute;
+    width:300px;
+    left:100px;
+    top:20%;
+    transform:translateY(-50%);
+    z-index:100;
+
+    background:
+        linear-gradient(145deg,#171717,#050505);
+    border:0px solid #2d2d2d;
+}
+
+.battery-title{
+    display:flex;
+    justify-content:space-between;
+    margin-bottom:10px;
+    font-size:24px;
+    color:#ccc;
+}
+
+.battery-bar{
+    height:32px;
+    border:3px solid #555;
+    padding:3px;
+    display:flex;
+    gap:3px;
+}
+
+.cell {
+    flex: 1;
+    background: #222;
+    transition: background 0.3s ease, box-shadow 0.3s ease;
+}
+
+.cell.green  { background: #00ff00; box-shadow: 0 0 8px rgba(0,255,0,0.5); }
+.cell.yellow { background: #ffff00; box-shadow: 0 0 8px rgba(255,255,0,0.5); }
+.cell.red    { background: #ff0000; box-shadow: 0 0 8px rgba(255,0,0,0.5); }
+
+/* ===================================================== */
+/* INFO */
+/* ===================================================== */
+
+.info-grid{
+    position:absolute;
+    margin-top: 30px;
+    margin-left: 15px;
+    left:100px;
+    top:45%;
+    transform:translateY(-50%);
+    z-index:100;
+}
+
+.info{
+    color:#ccc;
+    padding: 10px;
+}
+
+.info .label{
+    font-size:24px;
+}
+
+.info .value{
+    font-size:44px;
+    color:#fff0a0;
+}
+
+/* ===================================================== */
+/* TEMP BARS */
+/* ===================================================== */
+
+.temp-bars{
+    width:200px;
+    height:400px;
+    position:absolute;
+    right:90px;
+    top:50%;
+    transform:translateY(-50%);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:16px;
+    z-index:100;
+}
+
+.bar-column{
+    display:flex;
+    flex-direction:column-reverse;
+    gap:6px;
+    align-items:center;
+}
+
+.bar {
+    width: 42px;
+    height: 24px;
+    border-radius: 4px;
+    background: #222; /* Warna default saat bar mati (abu-abu gelap) */
+    transition: background 0.3s ease; /* Agar transisi warna halus */
+}
+
+.bar.blue  { background: #0000ff; box-shadow: 0 0 10px #0000ff; }
+.bar.cyan  { background: #00ffff; box-shadow: 0 0 10px #00ffff; }
+.bar.green  { background: #00ff00; box-shadow: 0 0 10px #00ff00; }
+.bar.yellow { background: #ffff00; box-shadow: 0 0 10px #ffff00; }
+.bar.red    { background: #ff0000; box-shadow: 0 0 10px #ff0000; }
+
+.bar-label{
+    text-align:center;
+    margin-top:15px;
+    font-size:24px;
+    color:#ccc;
+}
+
+.temp{
+    position:absolute;
+    top:370px;
+    right:15px;
+    font-size:24px;
+    text-align:right;
+    color:#ccc;
+}
+
+.curmode{
+    position:absolute;
+    top:-50px;
+    right:10px;
+    font-size:50px;
+    text-align:right;
+    color:#fff0a0;
+}
+
+/* ===================================================== */
+/* BOTTOM INFO */
+/* ===================================================== */
+
+.bottom-panel{
+    position:absolute;
+    bottom:0px;
+    width:100%;
+    display:flex;
+    justify-content:space-around;
+}
+
+.bottom-card{
+    width:410px;
+    height:110px;
+    border:2px solid #222;
+    border-radius:20px;
+    background:#080808;
+    padding:15px;
+    text-align:center;
+}
+
+.bottom-card .title{
+    font-size:20px;
+    color:#ccc;
+}
+
+.bottom-card .value{
+    font-size:42px;
+    margin-top:5px;
+    color:#fff0a0;
+}
+
+/* ===================================================== */
+/* RESPONSIVE */
+/* ===================================================== */
+
+@media(max-width:1200px){
+
+    .panel{
+        transform:scale(.8);
+    }
+}
+
+@media(max-width:900px){
+
+    .panel{
+        transform:scale(.6);
+    }
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="dashboard">
+
+<div class="panel">
+
+    <!-- ================================================= -->
+    <!-- GAUGE -->
+    <!-- ================================================= -->
+
+    <div class="gauge-group" id="gauge-group">
+        <div class="gauge" id="gauge">
+
+            <!-- ================================================= -->
+            <!-- AMPEREMETER -->
+            <!-- ================================================= -->
+
+            <div class="gauge-label">x10 A</div>
+
+            <div class="needle" id="needle"></div>
+            <div class="needle-tail" id="needle-tail"></div>
+
+            <div class="center-core"></div>
+
+            <!-- ================================================= -->
+            <!-- SPEED -->
+            <!-- ================================================= -->
+
+            <div class="speed-box">
+                <div class="speed-container">
+                    <span class="speed" id="speed">0</span>
+                    <span class="kmh">KM/H</span>
+                </div>
+            </div>
+            
+            <div class="center-cap"></div>
+
+        </div>
+
+        <!-- ================================================= -->
+        <!-- RPM -->
+        <!-- ================================================= -->
+
+        <div class="rpm-info">
+            <div id="rpm">0</div> <div class="rpm-unit">RPM</div>
+        </div>
+    </div>
+
+    <div class="display-group">
+
+        <!-- ================================================= -->
+        <!-- TEMP BAR -->
+        <!-- ================================================= -->
+
+        <div class="temp-bars">
+            <div class="curmode" id="curmode">connecting</div>
+                    <!-- BLDC TEMP BAR -->
+            <div>
+                <div class="bar-column" id="bldcTempBars"></div>
+                <div class="bar-label">BLDC</div>
+            </div>
+                    <!-- CTRL TEMP BAR -->
+            <div>
+                <div class="bar-column" id="ctrlTempBars"></div>
+                <div class="bar-label">CTRL</div>
+            </div>
+            <div class="temp">
+                <p>Temperature</p>
+                <p>x10 ℃</p>
+            </div>
+        </div>
+
+        <!-- ================================================= -->
+        <!-- BATTERY BAR -->
+        <!-- ================================================= -->
+
+        <!-- BATTERY -->
+
+        <div class="battery-section">
+
+            <div class="battery-title">
+                <span>BATTERY</span>
+                <span id="battSOC">0%</span>
+            </div>
+
+            <div class="battery-bar" id="batteryBar"></div>
+
+        </div>
+
+        <!-- INFO -->
+
+        <div class="info-grid">
+
+            <div class="info">
+                <div class="label">Voltage</div>
+                <div class="value" id="battVolt">0 V</div>
+            </div>
+
+            <div class="info">
+                <div class="label">Current</div>
+                <div class="value" id="battCurr">0 A</div>
+            </div>
+
+            <div class="info">
+                <div class="label">Temperature</div>
+                <div class="value" id="battTemp">0 ℃</div>
+            </div>
+
+        </div>
+        
+    </div>
+
+    <!-- ================================================= -->
+    <!-- BOTTOM -->
+    <!-- ================================================= -->
+
+<!--     <div class="bottom-panel"> -->
+
+        <!-- <div class="bottom-card"> -->
+        <!--     <div class="title">Estimation</div> -->
+        <!--     <div class="value" id="estimation">31°C</div> -->
+        <!-- </div> -->
+
+<!--         <div class="bottom-card"> -->
+<!--             <div class="title">Tripmeter</div> -->
+<!--             <div class="value" id="tripMeter">123.456 KM</div> -->
+<!--         </div> -->
+
+<!--         <div class="bottom-card"> -->
+<!--             <div class="title">Odometer</div> -->
+<!--             <div class="value" id="odoMeter">1234567 KM</div> -->
+<!--         </div> -->
+
+        <!-- <div class="bottom-card"> -->
+        <!--     <div class="title">SOC</div> -->
+        <!--     <div class="value" id="bottomSoc">85%</div> -->
+        <!-- </div> -->
+
+    </div>
+
+</div>
+
+</div>
+
+<script>
+
+/* ===================================================== */
+/* CREATE NUMBERS */
+/* ===================================================== */
+
+const gauge = document.getElementById('gauge');
+
+const numbers = [-2,-1,0,1,2,3,4,5,6,7,8,9];
+
+numbers.forEach((n,index)=>{
+
+    let angle = 37 + (index * 26);
+
+    const num = document.createElement('div');
+
+    num.className = 'number';
+
+    if(n >= 5){
+        num.classList.add('red');
+    }
+
+    num.innerText = n;
+
+    const radius = 200;
+
+    const x = Math.cos(angle*Math.PI/180)*radius;
+    const y = Math.sin(angle*Math.PI/180)*radius;
+
+    num.style.left = `calc(51% + ${x}px - 30px)`;
+    num.style.top  = `calc(49% + ${y}px - 30px)`;
+
+    gauge.appendChild(num);
+});
+
+/* ===================================================== */
+/* CREATE TICKS */
+/* ===================================================== */
+
+for(let i=0;i<60;i++){
+
+    const tick = document.createElement('div');
+
+    tick.className = 'tick';
+
+    if(i > 35){
+        tick.classList.add('red');
+    }
+
+    tick.style.transform =
+        `translateX(-50%) rotate(${-247.5 + i*5.2}deg)`;
+
+    gauge.appendChild(tick);
+}
+
+/* SMALL TICKS */
+
+for(let i=0;i<120;i++){
+
+    const tick = document.createElement('div');
+
+    tick.className = 'tick small';
+
+    tick.style.transform =
+        `translateX(-50%) rotate(${-247.5 + i*2.6}deg)`;
+
+    gauge.appendChild(tick);
+}
+
+/* ===================================================== */
+/* BATTERY CELLS */
+/* ===================================================== */
+
+const batteryBar = document.getElementById('batteryBar');
+const batteryCells = [];
+
+for(let i=0;i<10;i++){
+    const cell = document.createElement('div');
+    cell.className = 'cell';
+    batteryBar.appendChild(cell);
+    batteryCells.push(cell);
+}
+
+function getBatteryColorClass(activeCount) {
+    if (activeCount > 50) return 'green';
+    if (activeCount > 20) return 'yellow';
+    return 'red';
+}
+
+function updateBatteryDisplay(socValue) {
+    batteryCells.forEach((cell, index) => {
+        if (index < Math.round(socValue/10)) {
+            cell.className = 'cell ' + getBatteryColorClass(socValue);
+        } else {
+            cell.className = 'cell';
+        }
+    });
+}
+
+/* ===================================================== */
+/* TEMP BARS */
+/* ===================================================== */
+
+const bldcTempBars = document.getElementById('bldcTempBars');
+const ctrlTempBars = document.getElementById('ctrlTempBars');
+const bldcBarElements = [];
+const ctrlBarElements = [];
+
+for(let i=0;i<10;i++){
+    let bldcBar = document.createElement('div');
+    bldcBar.className = 'bar';
+    bldcTempBars.appendChild(bldcBar);
+    bldcBarElements.push(bldcBar);
+
+    let ctrlBar = document.createElement('div');
+    ctrlBar.className = 'bar';
+    ctrlTempBars.appendChild(ctrlBar);
+    ctrlBarElements.push(ctrlBar);
+}
+
+function getTempColorClass(activeCount) {
+    if (activeCount > 90) return 'red';
+    if (activeCount > 70)  return 'yellow';
+    if (activeCount > 30)  return 'green';
+    if (activeCount > 10)  return 'cyan';
+    return 'blue';
+}
+
+function updateBarDisplay(elements, value) {
+    elements.forEach((bar, index) => {
+        if (index < Math.round(value/10)) {
+            bar.className = 'bar ' + getTempColorClass(value);
+        } else {
+            bar.className = 'bar';
+        }
+    });
+}
+
+/* ===================================================== */
+/* DATA */
+/* ===================================================== */
+
+//let tripMeter = 123.456;
+//let OdoMeter = 1234567;
+let rpm = 0;
+let speed = 0;
+let ampere = 0;
+
+/*
+ * Smooth ampere needle animation.
+ *
+ * targetAmpere follows incoming data immediately.
+ * displayAmpere moves gradually toward targetAmpere using requestAnimationFrame.
+ */
+let targetAmpere = 0;
+let displayAmpere = 0;
+let needleAnimationStarted = false;
+
+let battVolt = 84;
+let battSOC = 0;
+let battTemp = 1;
+let bldcTemp = 7;
+let ctrlTemp = 3;
+
+/* ===================================================== */
+/* Connection */
+/* ===================================================== */
+
+/* ===================================================== */
+/* UPDATE */
+/* ===================================================== */
+
+
+
+function clampAmpere(value) {
+    if (value > 100) return 100;
+    if (value < -40) return -40;
+    return value;
+}
+
+function ampereToDegree(value) {
+    return 193 + ((value + 100) / 200) * 515;
+}
+
+function renderNeedle(value) {
+    const degree = ampereToDegree(value);
+
+    document.getElementById('needle').style.transform =
+        `rotate(${degree}deg)`;
+
+    document.getElementById('needle-tail').style.transform =
+        `rotate(${degree - 180}deg)`;
+}
+
+function startNeedleAnimation() {
+    if (needleAnimationStarted) {
+        return;
+    }
+
+    needleAnimationStarted = true;
+
+    function animateNeedle() {
+        /*
+         * Easing factor:
+         * - smaller value = smoother/slower
+         * - larger value = faster/more responsive
+         */
+        const easing = 0.12;
+
+        displayAmpere += (targetAmpere - displayAmpere) * easing;
+
+        if (Math.abs(targetAmpere - displayAmpere) < 0.03) {
+            displayAmpere = targetAmpere;
+        }
+
+        renderNeedle(displayAmpere);
+
+        requestAnimationFrame(animateNeedle);
+    }
+
+    requestAnimationFrame(animateNeedle);
+}
+
+startNeedleAnimation();
+
+function connectWS() {
+    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+    const wsUrl = `${protocol}//${window.location.host}/ws`;
+    let socket = new WebSocket(wsUrl);
+
+    socket.onopen = () => {
+        document.getElementById('curmode').innerText = "connecting";
+    }
+    
+    socket.onmessage = (event) => {
+        const msg = JSON.parse(event.data);
+        
+        // 3. MAPPING DATA (Format Golang 'dashboard_data')
+        if (msg.type === 'dashboard_data') {
+            const data = msg.data;
+            
+            // Update variabel global agar digunakan oleh updateDashboard()
+            if (data.rpm !== undefined) {
+                rpm = data.rpm;
+                document.getElementById('rpm').innerText = rpm;
+            }
+            if (data.speed !== undefined) {
+                speed = data.speed;
+                document.getElementById('speed').innerText = speed;
+            }
+            if (data.amps !== undefined) {
+                ampere = 0 - data.amps;
+                targetAmpere = clampAmpere(ampere);
+
+                // Nilai teks tetap mengikuti data aktual.
+                if(document.getElementById('battCurr')) {
+                    document.getElementById('battCurr').innerText = ampere.toFixed(1) + ' A';
+                }
+            }
+            if (data.volts !== undefined) {
+                battVolt = data.volts;
+                document.getElementById('battVolt').innerText = battVolt + '  V';
+            }
+            if (data.soc !== undefined) {
+                battSOC = data.soc;
+                document.getElementById('battSOC').innerText = battSOC + '%';
+                if(typeof updateBatteryDisplay === "function") updateBatteryDisplay(battSOC);
+            }
+//            if (d.odometer !== undefined) {
+//                odometer = d.odometer/1000;
+//                document.getElementById('odoMeter').innerText = odometer.toFixed(0);
+//                trip = d.odometer;
+//                document.getElementById('tripMeter').innerText = trip.toFixed(3);
+//            }
+
+            // Mapping Suhu (Nested Object dari types.go)
+            if (data.temps) {
+                bldcTemp = data.temps.motor;
+                ctrlTemp = data.temps.ctrl;
+                battTemp = data.temps.batt;
+                
+                if(typeof updateBatteryDisplay === "function") updateBarDisplay(bldcBarElements, bldcTemp);
+                if(typeof updateBatteryDisplay === "function") updateBarDisplay(ctrlBarElements, ctrlTemp);
+                if(document.getElementById('battTemp')) document.getElementById('battTemp').innerText = battTemp + ' ℃';
+            }
+
+            /* mode */
+            if (data.mode !== undefined) {
+                document.getElementById('curmode').innerText = data.mode;
+            }
+
+            /*
+             * Needle animation is handled by requestAnimationFrame.
+             * targetAmpere is updated above; displayAmpere moves smoothly.
+             */
+        }
+    };
+
+    socket.onclose = () => {
+        setTimeout(connectWS, 2000);
+    };
+}
+
+connectWS();
+//setInterval(connectWS,100);
+
+
+/* ===================================================== */
+/* dynamicscreen */
+/* ===================================================== */
+function scaleDashboard() {
+    const panel = document.querySelector('.panel');
+    const scale = Math.min(window.innerWidth / 1280, window.innerHeight / 720);
+    panel.style.transform = `scale(${scale})`;
+}
+window.addEventListener('resize', scaleDashboard);
+scaleDashboard();
+</script>
+
+</body>
+</html>
