@@ -337,7 +337,7 @@ body{
     margin-top: 30px;
     margin-left: 15px;
     left:100px;
-    top:45%;
+    top:50%;
     transform:translateY(-50%);
     z-index:100;
 }
@@ -578,6 +578,11 @@ body{
             </div>
 
             <div class="info">
+                <div class="label">Power</div>
+                <div class="value" id="battPow">0 W</div>
+            </div>
+
+            <div class="info">
                 <div class="label">Temperature</div>
                 <div class="value" id="battTemp">0 ℃</div>
             </div>
@@ -776,6 +781,7 @@ let targetAmpere = 0;
 let displayAmpere = 0;
 let needleAnimationStarted = false;
 
+let battPow = 84;
 let battVolt = 84;
 let battSOC = 0;
 let battTemp = 1;
@@ -865,7 +871,10 @@ function connectWS() {
                 document.getElementById('rpm').innerText = rpm;
             }
             if (data.speed !== undefined) {
-                speed = data.speed;
+                speed =
+                        data.gpsSpeed ??
+                        data.speed ??
+                        0;
                 document.getElementById('speed').innerText = speed;
             }
             if (data.amps !== undefined) {
@@ -874,12 +883,16 @@ function connectWS() {
 
                 // Nilai teks tetap mengikuti data aktual.
                 if(document.getElementById('battCurr')) {
-                    document.getElementById('battCurr').innerText = ampere.toFixed(1) + ' A';
+                    document.getElementById('battCurr').innerText = ampere + ' A';
                 }
             }
             if (data.volts !== undefined) {
                 battVolt = data.volts;
                 document.getElementById('battVolt').innerText = battVolt + '  V';
+            }
+            if (data.power !== undefined) {
+                battPow = data.power;
+                document.getElementById('battPow').innerText = battPow + '  W';
             }
             if (data.soc !== undefined) {
                 battSOC = data.soc;

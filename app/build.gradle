@@ -51,5 +51,6 @@ dependencies {
     implementation 'androidx.webkit:webkit:1.11.0'
     implementation 'org.nanohttpd:nanohttpd:2.3.1'
     implementation 'org.nanohttpd:nanohttpd-websocket:2.3.1'
+    implementation "androidx.car.app:app:1.4.0"
 
 }
