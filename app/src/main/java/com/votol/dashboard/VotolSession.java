@@ -13,10 +13,12 @@ public class VotolSession extends Session {
     @NonNull
     @Override
     public Screen onCreateScreen(@NonNull Intent intent) {
+        /*
         DebugLogger.car(
                 getCarContext(),
                 "VotolSession.onCreateScreen()"
         );
+         */
 
         return new VotolDashboardScreen(getCarContext());
     }

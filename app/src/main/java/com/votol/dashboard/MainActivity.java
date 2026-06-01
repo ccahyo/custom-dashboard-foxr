@@ -64,7 +64,7 @@ public class MainActivity extends AppCompatActivity {
         requestRuntimePermissions();
         observeCarConnection();
 
-        Toast.makeText(this, DebugLogger.getCarDebugStatus(this), Toast.LENGTH_LONG).show();
+//        Toast.makeText(this, DebugLogger.getCarDebugStatus(this), Toast.LENGTH_LONG).show();
 
         dashboardServer = new DashboardWebServer(this, repository, LOCAL_PORT);
         repository.setListener(() -> {
@@ -150,22 +150,26 @@ public class MainActivity extends AppCompatActivity {
                                                 ? "Connected to a car head unit"
                                                 : "Not Connected to a car head unit";
 
+                                /*
                                 android.widget.Toast.makeText(
                                         MainActivity.this,
                                         message,
                                         android.widget.Toast.LENGTH_LONG
                                 ).show();
+                                 */
 
                                 com.votol.dashboard.debug.DebugLogger.d(message);
                             }
                     );
 
         } catch (Exception e) {
+            /*
             android.widget.Toast.makeText(
                     this,
                     "CarConnection error: " + e.getMessage(),
                     android.widget.Toast.LENGTH_LONG
             ).show();
+             */
         }
     }
 
