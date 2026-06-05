@@ -984,9 +984,9 @@ function updateDashboard() {
 
             // Mapping Suhu (Nested Object dari types.go)
             if (data.temps) {
-                bldcTemp = data.temps.motor;
-                ctrlTemp = data.temps.ctrl;
-                battTemp = data.temps.batt;
+                bldcTemp = data.temps.motor ?? bldcTemp;
+                ctrlTemp = data.temps.ctrl ?? ctrlTemp;
+                battTemp = data.temps.batt ?? battTemp;
                 
                 if(typeof updateBatteryDisplay === "function") updateBarDisplay(bldcBarElements, bldcTemp);
                 if(typeof updateBatteryDisplay === "function") updateBarDisplay(ctrlBarElements, ctrlTemp);
