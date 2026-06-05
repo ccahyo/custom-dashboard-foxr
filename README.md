@@ -1,4 +1,4 @@
-# FOX-R Custom Speedometer
+# FOX-R Custom Dashboard
 
 Modern real-time dashboard untuk sepeda motor listrik berbasis **Votol Controller**, **ESP32 CAN Gateway**, dan **Android Runtime**.
 
@@ -6,15 +6,11 @@ Dashboard dirancang agar mudah dikustomisasi, mendukung telemetry melalui **BLE*
 
 ---
 
-## Preview
+## Dashboard Preview
 
-> Tambahkan screenshot dashboard di sini
+![Dashboard FOX-R](docs/images/dashboard-main.jpg)
 
-```text
-docs/images/dashboard-main.png
-docs/images/dashboard-night.png
-docs/images/dashboard-mobile.png
-```
+Tampilan dashboard utama FOX-R dengan speedometer, RPM, temperatur, dan informasi baterai secara real-time.
 
 ---
 
