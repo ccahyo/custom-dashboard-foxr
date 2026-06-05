@@ -8,6 +8,7 @@ Dashboard dirancang agar mudah dikustomisasi, mendukung telemetry melalui **BLE*
 
 ## Dashboard Preview
 
+![Dashboard FOX-R](docs/images/dashboard-main.png)
 ![Dashboard FOX-R](docs/images/dashboard-main.jpg)
 
 Tampilan dashboard utama FOX-R dengan speedometer, RPM, temperatur, dan informasi baterai secara real-time.
