@@ -151,6 +151,11 @@ body{
     height:30px;
 }
 
+.tick.green{
+    background:#007000;
+    height:30px;
+}
+
 .tick.small{
     height:15px;
     width:3px;
@@ -170,6 +175,10 @@ body{
 
 .number.red{
     color:#b00000;
+}
+
+.number.green{
+    color:#007000;
 }
 
 /* ===================================================== */
@@ -256,6 +265,16 @@ body{
     z-index:30;
 }
 
+.speed-source-icon{
+    position:absolute;
+    top:28px;
+    right:28px;
+    font-size:22px;
+    color:#00ffff;
+    z-index:40;
+    display:none;
+}
+
 .speed{
     font-size:115px;
     font-weight:700;
@@ -305,7 +324,7 @@ body{
 
 .battery-section{
     position:absolute;
-    width:340px;
+    width:345px;
     left:40px;
     top:15%;
     transform:translateY(-50%);
@@ -349,7 +368,7 @@ body{
 .info-grid{
     position:absolute;
     margin-top: 30px;
-    margin-left: 0px;
+    margin-left: 30px;
     left:40px;
     top:50%;
     transform:translateY(-50%);
@@ -427,11 +446,43 @@ body{
 
 .curmode{
     position:absolute;
+    width:300px;
     top:-90px;
     right:0px;
     font-size:56px;
     text-align:right;
-    color:#fff0a0;
+    color:#ccc;
+}
+
+/* ===================================================== */
+/* TIME INFO */
+/* ===================================================== */
+
+.time-info {
+    width:187px;
+    height:112px;
+    position:absolute;
+    left:73%;
+    top:69%;
+    transform:translate(-50%,-50%);
+    align-items:flex-end;
+    background:#050505;
+    border:8px solid #333;
+    box-shadow: 10px 0 30px rgba(0,0,0,0.8);
+
+    font-size: 16px;
+    opacity: 0.8;
+    color:#ccc;
+    letter-spacing: 1px;
+    text-align: right;
+    padding-right: 15px;
+    padding-top: 25px;
+}
+
+.time-hours-minutes {
+    font-size: 22px;
+    color: #fff0a0;
+    padding-top: 5px;
 }
 
 /* ===================================================== */
@@ -508,6 +559,8 @@ body{
             <!-- ================================================= -->
 
             <div class="speed-box">
+                <div id="speedSourceIcon" class="speed-source-icon"></div>
+
                 <div class="speed-container">
                     <span class="speed" id="speed">0</span>
                     <span class="kmh">KM/H</span>
@@ -525,6 +578,15 @@ body{
         <div class="rpm-info">
             <div id="rpm">0</div> <div class="rpm-unit">RPM</div>
         </div>
+
+        <!-- ================================================= -->
+        <!-- Current Time -->
+        <!-- ================================================= -->
+
+        <div class="time-info">
+            <div class="time-label">Time</div>
+            <div class="time-hours-minutes" id="hours-minutes">00:00</div>
+        </div>
     </div>
 
     <div class="display-group">
@@ -534,7 +596,7 @@ body{
         <!-- ================================================= -->
 
         <div class="temp-bars">
-            <div class="curmode" id="curmode">connecting</div>
+            <div class="curmode" id="curmode">PEV HUD</div>
                     <!-- BLDC TEMP BAR -->
             <div>
                 <div class="bar-column" id="bldcTempBars"></div>
@@ -646,9 +708,10 @@ numbers.forEach((n,index)=>{
 
     num.className = 'number';
 
-    if(n >= 5){
+    if(n > 4)
         num.classList.add('red');
-    }
+    else if(n < 0)
+        num.classList.add('green');
 
     num.innerText = n;
 
@@ -657,7 +720,7 @@ numbers.forEach((n,index)=>{
     const x = Math.cos(angle*Math.PI/180)*radius;
     const y = Math.sin(angle*Math.PI/180)*radius;
 
-    num.style.left = `calc(51% + ${x}px - 30px)`;
+    num.style.left = `calc(50% + ${x}px - 30px)`;
     num.style.top  = `calc(49% + ${y}px - 30px)`;
 
     gauge.appendChild(num);
@@ -673,9 +736,10 @@ for(let i=0;i<60;i++){
 
     tick.className = 'tick';
 
-    if(i > 35){
+    if(i > 33)
         tick.classList.add('red');
-    }
+    else if (i < 13)
+        tick.classList.add('green');
 
     tick.style.transform =
         `translateX(-50%) rotate(${-247.5 + i*5.2}deg)`;
@@ -692,7 +756,7 @@ for(let i=0;i<120;i++){
     tick.className = 'tick small';
 
     tick.style.transform =
-        `translateX(-50%) rotate(${-247.5 + i*2.6}deg)`;
+        `translateX(-50%) rotate(${-250.1 + i*2.6}deg)`;
 
     gauge.appendChild(tick);
 }
@@ -810,7 +874,7 @@ function clampAmpere(value) {
 }
 
 function ampereToDegree(value) {
-    return 193 + ((value + 100) / 200) * 515;
+    return 192.5 + ((value + 100) / 200) * 515;
 }
 
 function renderNeedle(value) {
@@ -852,9 +916,7 @@ function startNeedleAnimation() {
     requestAnimationFrame(animateNeedle);
 }
 
-startNeedleAnimation();
-
-function connectWS() {
+function updateDashboard() {
     const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
     const wsUrl = `${protocol}//${window.location.host}/ws`;
     let socket = new WebSocket(wsUrl);
@@ -875,12 +937,21 @@ function connectWS() {
                 rpm = data.rpm;
                 document.getElementById('rpm').innerText = rpm;
             }
-            if (data.speed !== undefined) {
-                speed =
-                        data.gpsSpeed ??
-                        data.speed ??
-                        0;
-                document.getElementById('speed').innerText = speed;
+            if (data.speed !== undefined || data.gpsSpeed !== undefined) {
+                const sourceIcon = document.getElementById('speedSourceIcon');
+
+                if (data.gpsSpeed !== undefined && data.gpsSpeed !== null) {
+                    speed = data.gpsSpeed;
+                    //sourceIcon.innerText = "🛰";
+                    sourceIcon.innerText = "📡";
+                    sourceIcon.style.display = "block";   // GPS
+                } else {
+                    speed = data.speed ?? 0;
+                    sourceIcon.innerText = "";
+                    sourceIcon.style.display = "none";    // VOTOL
+                }
+
+                document.getElementById('speed').innerText = speed.toFixed(0);
             }
             if (data.amps !== undefined) {
                 ampere = 0 - data.amps;
@@ -896,7 +967,7 @@ function connectWS() {
                 document.getElementById('battVolt').innerText = battVolt + '  V';
             }
             if (data.power !== undefined) {
-                battPow = data.power;
+                battPow = 0 - data.power;
                 document.getElementById('battPow').innerText = battPow + '  W';
             }
             if (data.soc !== undefined) {
@@ -935,12 +1006,51 @@ function connectWS() {
     };
 
     socket.onclose = () => {
-        setTimeout(connectWS, 2000);
+        setTimeout(updateDashboard, 2000);
     };
 }
 
-connectWS();
-//setInterval(connectWS,100);
+function updateDateTime() {
+    const now = new Date();
+
+    const hari = [
+        "Minggu", "Senin", "Selasa", "Rabu",
+        "Kamis", "Jumat", "Sabtu"
+    ];
+
+    const bulan = [
+        "Januari", "Februari", "Maret", "April",
+        "Mei", "Juni", "Juli", "Agustus",
+        "September", "Oktober", "November", "Desember"
+    ];
+
+    const dayName = hari[now.getDay()];
+    const date = String(now.getDate()).padStart(2, "0");
+    const monthName = bulan[now.getMonth()];
+    const year = now.getFullYear();
+
+    const hour = String(now.getHours()).padStart(2, "0");
+    const minute = String(now.getMinutes()).padStart(2, "0");
+    const second = String(now.getSeconds()).padStart(2, "0");
+
+    /*
+    document.getElementById("dateText").innerText =
+        `${dayName}, ${date} ${monthName} ${year}`;
+
+    document.getElementById("timeText").innerText =
+        `${hour}:${minute}:${second}`;
+    */
+
+    document.getElementById("hours-minutes").innerText =
+        `${hour}:${minute}`;
+}
+
+updateDashboard();
+startNeedleAnimation();
+updateDateTime();
+//setInterval(updateDashboard,1000);
+//setInterval(startNeedleAnimation, 1000);
+//setInterval(updateDateTime, 1000);
 
 
 /* ===================================================== */
