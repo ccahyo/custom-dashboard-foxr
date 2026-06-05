@@ -267,12 +267,12 @@ body{
 
 .speed-source-icon{
     position:absolute;
-    top:28px;
-    right:28px;
-    font-size:22px;
+    top:20px;
+    right:20px;
+    font-size:30px;
     color:#00ffff;
     z-index:40;
-    display:none;
+    display:block;
 }
 
 .speed{
@@ -475,12 +475,12 @@ body{
     color:#ccc;
     letter-spacing: 1px;
     text-align: right;
-    padding-right: 15px;
-    padding-top: 25px;
+    padding-right: 10px;
+    padding-top: 20px;
 }
 
 .time-hours-minutes {
-    font-size: 22px;
+    font-size: 28px;
     color: #fff0a0;
     padding-top: 5px;
 }
@@ -559,7 +559,7 @@ body{
             <!-- ================================================= -->
 
             <div class="speed-box">
-                <div id="speedSourceIcon" class="speed-source-icon"></div>
+                <div id="speedSourceIcon" class="speed-source-icon">📡</div>
 
                 <div class="speed-container">
                     <span class="speed" id="speed">0</span>
@@ -622,7 +622,7 @@ body{
         <div class="battery-section">
 
             <div class="battery-title">
-                <span>BATTERY</span>
+                <span>Battery SoC</span>
                 <span id="battSOC">0%</span>
             </div>
 
@@ -708,12 +708,14 @@ numbers.forEach((n,index)=>{
 
     num.className = 'number';
 
-    if(n > 4)
-        num.classList.add('red');
-    else if(n < 0)
+    if(n < 0){
         num.classList.add('green');
-
-    num.innerText = n;
+        num.innerText = '+' + (0 - n);
+    }else{
+        if(n > 4)
+            num.classList.add('red');
+        num.innerText = n;
+    }
 
     const radius = 225;
 
@@ -730,13 +732,13 @@ numbers.forEach((n,index)=>{
 /* CREATE TICKS */
 /* ===================================================== */
 
-for(let i=0;i<60;i++){
+for (let i=0;i<60;i++){
 
     const tick = document.createElement('div');
 
     tick.className = 'tick';
 
-    if(i > 33)
+    if (i > 33)
         tick.classList.add('red');
     else if (i < 13)
         tick.classList.add('green');
@@ -749,7 +751,7 @@ for(let i=0;i<60;i++){
 
 /* SMALL TICKS */
 
-for(let i=0;i<120;i++){
+for (let i=0;i<120;i++){
 
     const tick = document.createElement('div');
 
@@ -768,7 +770,7 @@ for(let i=0;i<120;i++){
 const batteryBar = document.getElementById('batteryBar');
 const batteryCells = [];
 
-for(let i=0;i<10;i++){
+for (let i=0;i<10;i++){
     const cell = document.createElement('div');
     cell.className = 'cell';
     batteryBar.appendChild(cell);
@@ -800,7 +802,7 @@ const ctrlTempBars = document.getElementById('ctrlTempBars');
 const bldcBarElements = [];
 const ctrlBarElements = [];
 
-for(let i=0;i<10;i++){
+for (let i=0;i<10;i++){
     let bldcBar = document.createElement('div');
     bldcBar.className = 'bar';
     bldcTempBars.appendChild(bldcBar);
@@ -933,10 +935,6 @@ function updateDashboard() {
             const data = msg.data;
             
             // Update variabel global agar digunakan oleh updateDashboard()
-            if (data.rpm !== undefined) {
-                rpm = data.rpm;
-                document.getElementById('rpm').innerText = rpm;
-            }
             if (data.speed !== undefined || data.gpsSpeed !== undefined) {
                 const sourceIcon = document.getElementById('speedSourceIcon');
 
@@ -953,22 +951,34 @@ function updateDashboard() {
 
                 document.getElementById('speed').innerText = speed.toFixed(0);
             }
+            if (data.rpm !== undefined) {
+                rpm = data.rpm;
+                document.getElementById('rpm').innerText = rpm;
+            }
             if (data.amps !== undefined) {
-                ampere = 0 - data.amps;
-                targetAmpere = clampAmpere(ampere);
+                ampere = data.amps;
+                targetAmpere = clampAmpere(0 - ampere);
 
                 // Nilai teks tetap mengikuti data aktual.
                 if(document.getElementById('battCurr')) {
-                    document.getElementById('battCurr').innerText = ampere + ' A';
+                    if (ampere < 0)
+                        document.getElementById('battCurr').innerText = 0 - ampere + ' A';
+                    else
+                        document.getElementById('battCurr').innerText = '+' + ampere + ' A';
+                }
+            }
+            if (data.power !== undefined) {
+                battPow = data.power;
+                if (document.getElementById('battPow')) {
+                    if (battPow < 0)
+                        document.getElementById('battPow').innerText = 0 - battPow + '  W';
+                    else
+                        document.getElementById('battPow').innerText = '+' + battPow + '  W';
                 }
             }
             if (data.volts !== undefined) {
                 battVolt = data.volts;
                 document.getElementById('battVolt').innerText = battVolt + '  V';
-            }
-            if (data.power !== undefined) {
-                battPow = 0 - data.power;
-                document.getElementById('battPow').innerText = battPow + '  W';
             }
             if (data.soc !== undefined) {
                 battSOC = data.soc;
