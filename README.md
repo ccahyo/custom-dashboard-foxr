@@ -1,36 +1,38 @@
 # Custom Speedometer FOX-R
 
-A custom real-time dashboard for the FOX-R electric motorcycle powered by a Votol controller, ESP32 CAN gateway, Android runtime, and a fully customizable HTML dashboard.
+Dashboard real-time khusus untuk sepeda motor listrik FOX-R yang menggunakan controller Votol, gateway CAN ESP32, runtime Android, dan dashboard HTML yang sepenuhnya dapat dikustomisasi.
 
-The project uses the excellent ESP32 CAN gateway created by zexry619 and focuses on providing a modern, highly customizable dashboard experience while remaining compatible with both BLE and WiFi telemetry.
+Project ini menggunakan firmware ESP32 CAN gateway dari zexry619, lalu menambahkan aplikasi Android sebagai runtime dashboard modern yang mendukung telemetry melalui BLE dan WiFi.
 
 ---
 
-## Features
+## Fitur
 
-- Real-time speedometer
-- RPM monitoring
-- Battery voltage monitoring
-- Battery current monitoring
-- Power monitoring
+- Speedometer real-time
+- Monitoring RPM
+- Monitoring tegangan baterai
+- Monitoring arus baterai
+- Monitoring daya/power
 - State of Charge (SOC)
-- Controller temperature
-- Motor temperature
-- Battery temperature
-- Cell voltage monitoring
-- Cell voltage statistics
-- Battery health monitoring
-- Charger monitoring
-- BLE telemetry
-- WiFi telemetry
-- Fully customizable HTML dashboard
-- Android-based runtime
+- Temperatur controller
+- Temperatur motor / BLDC
+- Temperatur baterai
+- Monitoring tegangan sel baterai
+- Statistik tegangan sel baterai
+- Monitoring kesehatan baterai
+- Monitoring charger
+- Telemetry melalui BLE
+- Telemetry melalui WiFi
+- Speed berbasis GPS sebagai opsi tambahan
+- Tampilan waktu pada dashboard
+- Dashboard HTML yang bebas dikustomisasi
+- Runtime berbasis Android
 - Internal WebSocket bridge
-- OTA-compatible ESP32 firmware
+- Kompatibel dengan firmware ESP32 OTA
 
 ---
 
-# System Architecture
+# Arsitektur Sistem
 
 ```text
 Votol Controller
@@ -44,45 +46,45 @@ ESP32 Gateway
         └── WiFi
                 │
                 ▼
-Android Application
+Aplikasi Android
                 │
                 │ Internal WebSocket
                 ▼
 dashboard.html
 ```
 
-The ESP32 acts as a CAN-to-Telemetry bridge.
+ESP32 berfungsi sebagai jembatan CAN-to-Telemetry.
 
-The Android application receives telemetry from ESP32 through BLE or WiFi, normalizes the data structure, and forwards it to the dashboard through an internal WebSocket server.
+Aplikasi Android menerima telemetry dari ESP32 melalui BLE atau WiFi, menormalisasi struktur data, lalu meneruskannya ke dashboard melalui internal WebSocket server.
 
-The dashboard itself is completely independent from BLE, WiFi, CAN Bus, and ESP32 implementation details.
+File `dashboard.html` tidak perlu mengetahui detail implementasi BLE, WiFi, CAN Bus, atau firmware ESP32. Dashboard hanya membaca JSON yang sudah dinormalisasi oleh aplikasi Android.
 
 ---
 
-# Getting Started
+# Cara Mulai
 
-## 1. Flash ESP32 Firmware
+## 1. Flash Firmware ESP32
 
-This project depends on the ESP32 firmware from:
+Project ini bergantung pada firmware ESP32 dari:
 
 👉 https://github.com/zexry619/votol-esp32-can-bus/tree/beta
 
-Follow the firmware repository instructions for:
+Ikuti instruksi pada repository firmware tersebut untuk:
 
-- ESP32 setup
-- CAN Bus wiring
-- Votol controller wiring
-- BMS configuration
-- OTA setup
+- Setup ESP32
+- Wiring CAN Bus
+- Wiring controller Votol
+- Konfigurasi BMS
+- Setup OTA
 
-After flashing, the ESP32 should expose:
+Setelah firmware berhasil ditanam, ESP32 akan menyediakan:
 
 ```text
 BLE Name:
 Votol_BLE
 ```
 
-and telemetry through:
+dan mengirim telemetry melalui:
 
 ```text
 BLE
@@ -91,11 +93,11 @@ WiFi
 
 ---
 
-# ESP32 JSON Protocol
+# Protokol JSON ESP32
 
-To minimize BLE bandwidth usage, the ESP32 firmware transmits compact JSON packets using short keys.
+Untuk menghemat bandwidth BLE, firmware ESP32 mengirimkan paket JSON ringkas dengan key pendek.
 
-Two packet types are used:
+Ada dua jenis paket utama:
 
 ```text
 fast
@@ -104,9 +106,9 @@ full
 
 ---
 
-## Fast Packet
+## Paket Fast
 
-Example:
+Contoh:
 
 ```json
 {
@@ -128,32 +130,30 @@ Example:
 }
 ```
 
-### Fast Fields
+### Field Fast
 
-| Key | Description |
+| Key | Deskripsi |
 |------|------------|
-| r | Motor RPM |
-| s | Vehicle speed |
-| m | Drive mode |
-| v | Battery voltage |
-| a | Battery current |
-| p | Battery power |
-| sc | State of Charge |
-| t.c | Controller temperature |
-| t.m | Motor temperature |
-| t.b | Battery temperature |
+| r | RPM motor |
+| s | Kecepatan kendaraan dari ESP32/CAN |
+| m | Mode berkendara |
+| v | Tegangan baterai |
+| a | Arus baterai |
+| p | Daya baterai |
+| sc | State of Charge / persentase baterai |
+| t.c | Temperatur controller |
+| t.m | Temperatur motor / BLDC |
+| t.b | Temperatur baterai |
 | cr | CAN rate |
 | hb | Heartbeat counter |
 
 ---
 
-## Full Packet
+## Paket Full
 
-Full packets include all fast fields plus extended battery and BMS information.
+Paket `full` berisi semua field dari paket `fast`, ditambah informasi baterai dan BMS yang lebih lengkap.
 
----
-
-### Battery Health
+### Kesehatan Baterai
 
 ```json
 "h": {
@@ -164,32 +164,24 @@ Full packets include all fast fields plus extended battery and BMS information.
 }
 ```
 
-| Key | Description |
+| Key | Deskripsi |
 |------|------------|
-| soh | State of Health |
-| cyc | Charge cycles |
-| rc | Remaining capacity |
-| fc | Full capacity |
+| soh | State of Health / kesehatan baterai |
+| cyc | Jumlah siklus pengisian |
+| rc | Kapasitas tersisa |
+| fc | Kapasitas penuh |
 
----
-
-### Cell Voltages
+### Tegangan Sel
 
 ```json
-"cells": [
-  4100,
-  4098,
-  4097
-]
+"cells": [4100, 4098, 4097]
 ```
 
-| Key | Description |
+| Key | Deskripsi |
 |------|------------|
-| cells | Voltage of each battery cell |
+| cells | Tegangan masing-masing sel baterai |
 
----
-
-### Cell Voltage Statistics
+### Statistik Tegangan Sel
 
 ```json
 "cvs": {
@@ -201,17 +193,15 @@ Full packets include all fast fields plus extended battery and BMS information.
 }
 ```
 
-| Key | Description |
+| Key | Deskripsi |
 |------|------------|
-| hi | Highest cell voltage |
-| hiC | Highest cell number |
-| lo | Lowest cell voltage |
-| loC | Lowest cell number |
-| av | Average cell voltage |
+| hi | Tegangan sel tertinggi |
+| hiC | Nomor sel dengan tegangan tertinggi |
+| lo | Tegangan sel terendah |
+| loC | Nomor sel dengan tegangan terendah |
+| av | Rata-rata tegangan sel |
 
----
-
-### Temperature Statistics
+### Statistik Temperatur
 
 ```json
 "ts": {
@@ -222,34 +212,30 @@ Full packets include all fast fields plus extended battery and BMS information.
 }
 ```
 
-| Key | Description |
+| Key | Deskripsi |
 |------|------------|
-| max | Highest temperature |
-| maxC | Highest temperature sensor |
-| min | Lowest temperature |
-| minC | Lowest temperature sensor |
+| max | Temperatur tertinggi |
+| maxC | Sensor/sel dengan temperatur tertinggi |
+| min | Temperatur terendah |
+| minC | Sensor/sel dengan temperatur terendah |
 
----
-
-### Balance Information
+### Informasi Balancing
 
 ```json
 "b": {
   "md": 1,
   "st": 1,
-  "cells": [0,1,0,1]
+  "cells": [0, 1, 0, 1]
 }
 ```
 
-| Key | Description |
+| Key | Deskripsi |
 |------|------------|
-| md | Balance mode |
-| st | Balance status |
-| cells | Active balancing cells |
+| md | Mode balancing |
+| st | Status balancing |
+| cells | Sel yang sedang aktif balancing |
 
----
-
-### Charger Information
+### Informasi Charger
 
 ```json
 "chr": {
@@ -260,16 +246,14 @@ Full packets include all fast fields plus extended battery and BMS information.
 }
 ```
 
-| Key | Description |
+| Key | Deskripsi |
 |------|------------|
-| on | Charger connected |
-| v | Charger voltage |
-| a | Charger current |
-| ori | Original charger flag |
+| on | Status charger tersambung |
+| v | Tegangan charger |
+| a | Arus charger |
+| ori | Flag charger original |
 
----
-
-### BMS Information
+### Informasi BMS
 
 ```json
 "bms": {
@@ -278,20 +262,20 @@ Full packets include all fast fields plus extended battery and BMS information.
 }
 ```
 
-| Key | Description |
+| Key | Deskripsi |
 |------|------------|
-| hw | BMS hardware version |
-| fw | BMS firmware version |
+| hw | Versi hardware BMS |
+| fw | Versi firmware BMS |
 
 ---
 
-# Android JSON Normalization
+# Normalisasi JSON di Android
 
-The Android application does **not** forward the original ESP32 JSON directly.
+Aplikasi Android **tidak langsung meneruskan JSON asli ESP32** ke dashboard.
 
-Instead, it converts short keys into a more readable structure for dashboard development.
+Aplikasi Android mengubah key pendek dari ESP32 menjadi key yang lebih mudah dibaca dan lebih nyaman dipakai saat membuat desain dashboard.
 
-Example:
+Contoh hasil normalisasi:
 
 ```json
 {
@@ -302,6 +286,7 @@ Example:
   "power": 1334,
   "soc": 84,
   "mode": "DRIVE",
+  "gpsSpeed": 44.8,
   "temps": {
     "ctrl": 42,
     "motor": 55,
@@ -310,103 +295,176 @@ Example:
 }
 ```
 
-This keeps dashboard code simple and independent from ESP32 protocol changes.
+Dengan cara ini, `dashboard.html` tetap sederhana dan tidak tergantung pada format internal firmware ESP32.
 
 ---
 
-# Dashboard API
+# API Dashboard
 
-If you want to create your own dashboard design, these are the primary fields you should use.
+Jika ingin membuat desain dashboard sendiri, gunakan field-field berikut.
 
----
+## Field Dasar
 
-## Basic Fields
-
-| Field | Description |
+| Field | Deskripsi |
 |---------|------------|
-| speed | Vehicle speed |
-| rpm | Motor RPM |
-| volts | Battery voltage |
-| amps | Battery current |
-| power | Battery power |
-| soc | Battery percentage |
-| mode | Current drive mode |
+| speed | Kecepatan kendaraan dari ESP32/CAN |
+| gpsSpeed | Kecepatan kendaraan dari GPS Android |
+| rpm | RPM motor |
+| volts | Tegangan baterai |
+| amps | Arus baterai |
+| power | Daya baterai |
+| soc | Persentase baterai |
+| mode | Mode berkendara saat ini |
 
 ---
 
-## Temperature Fields
+## Speed dari GPS
 
-| Field | Description |
+Field `gpsSpeed` berasal dari sensor GPS perangkat Android.
+
+Jika tersedia, dashboard dapat menggunakan `gpsSpeed` sebagai sumber kecepatan alternatif atau prioritas utama. Ini berguna ketika:
+
+- data speed dari CAN belum tersedia,
+- speed dari controller kurang stabil,
+- ingin membandingkan speed CAN dengan speed GPS,
+- ingin mode dashboard yang lebih dekat dengan konsep navigasi.
+
+Contoh penggunaan di `dashboard.html`:
+
+```javascript
+const speed = data.gpsSpeed ?? data.speed ?? 0;
+```
+
+Jika ingin menampilkan indikator bahwa speed berasal dari GPS:
+
+```javascript
+if (data.gpsSpeed !== undefined && data.gpsSpeed !== null) {
+    speed = data.gpsSpeed;
+    sourceIcon.innerText = "📡";
+    sourceIcon.style.display = "block";
+} else {
+    speed = data.speed ?? 0;
+    sourceIcon.innerText = "";
+    sourceIcon.style.display = "none";
+}
+```
+
+Catatan:
+
+- `gpsSpeed` hanya tersedia jika izin lokasi diberikan.
+- GPS membutuhkan lock satelit, sehingga nilai speed bisa terlambat muncul setelah aplikasi dibuka.
+- Pada area tertutup, GPS speed bisa tidak tersedia atau kurang stabil.
+- Jika GPS tidak tersedia, dashboard sebaiknya fallback ke field `speed`.
+
+---
+
+## Informasi Waktu
+
+Dashboard juga dapat menampilkan waktu lokal dari perangkat Android/WebView.
+
+Contoh tampilan:
+
+```text
+Time
+12:08
+```
+
+Contoh implementasi JavaScript:
+
+```javascript
+function updateDateTime() {
+    const now = new Date();
+
+    const hour = String(now.getHours()).padStart(2, "0");
+    const minute = String(now.getMinutes()).padStart(2, "0");
+
+    const hm = document.getElementById("hours-minutes");
+
+    if (hm) {
+        hm.innerText = `${hour}:${minute}`;
+    }
+}
+
+updateDateTime();
+setInterval(updateDateTime, 1000);
+```
+
+Catatan:
+
+- Waktu berasal dari perangkat Android, bukan dari ESP32.
+- Fitur ini tidak memerlukan perubahan firmware ESP32.
+- Pastikan elemen HTML dengan `id="hours-minutes"` tersedia di `dashboard.html`.
+
+---
+
+## Field Temperatur
+
+| Field | Deskripsi |
 |---------|------------|
-| temps.ctrl | Controller temperature |
-| temps.motor | Motor temperature |
-| temps.batt | Battery temperature |
+| temps.ctrl | Temperatur controller |
+| temps.motor | Temperatur motor / BLDC |
+| temps.batt | Temperatur baterai |
 
----
+## Kesehatan Baterai
 
-## Battery Health
-
-| Field | Description |
+| Field | Deskripsi |
 |---------|------------|
-| health.soh | State of Health |
-| health.cycles | Charge cycles |
-| health.remcap | Remaining capacity |
-| health.fullcap | Full capacity |
+| health.soh | State of Health / kesehatan baterai |
+| health.cycles | Jumlah siklus pengisian |
+| health.remcap | Kapasitas tersisa |
+| health.fullcap | Kapasitas penuh |
 
----
+## Statistik Tegangan Sel
 
-## Cell Voltage Statistics
-
-| Field | Description |
+| Field | Deskripsi |
 |---------|------------|
-| cellvoltstats.highest | Highest cell voltage |
-| cellvoltstats.lowest | Lowest cell voltage |
-| cellvoltstats.average | Average cell voltage |
-
----
+| cellvoltstats.highest | Tegangan sel tertinggi |
+| cellvoltstats.lowest | Tegangan sel terendah |
+| cellvoltstats.average | Rata-rata tegangan sel |
+| cellvoltstats.delta | Selisih tegangan sel tertinggi dan terendah |
 
 ## Charger
 
-| Field | Description |
+| Field | Deskripsi |
 |---------|------------|
-| charger.on | Charger connected |
-| charger.volts | Charger voltage |
-| charger.amps | Charger current |
-
----
+| charger.on | Charger tersambung |
+| charger.volts | Tegangan charger |
+| charger.amps | Arus charger |
+| charger.original | Charger original |
 
 ## BMS
 
-| Field | Description |
+| Field | Deskripsi |
 |---------|------------|
-| bmsinfo.hwver | Hardware version |
-| bmsinfo.fwver | Firmware version |
+| bmsinfo.hwver | Versi hardware BMS |
+| bmsinfo.fwver | Versi firmware BMS |
 
 ---
 
-# Customizing the Dashboard
+# Menyesuaikan Dashboard
 
-All visual elements are contained inside:
+Semua elemen visual berada di:
 
 ```text
 dashboard.html
 ```
 
-You are free to modify:
+Anda bebas mengubah:
 
 - Layout
-- Themes
-- Gauges
-- Colors
-- Animations
-- Widgets
-- Graphs
+- Tema
+- Gauge
+- Warna
+- Animasi
+- Widget
+- Grafik
+- Font
+- Indikator speed GPS
+- Tampilan waktu
 
-No ESP32 firmware changes are required.
+Tidak perlu mengubah firmware ESP32.
 
-No Android code changes are required.
-
-As long as your dashboard consumes the normalized JSON fields, the backend remains unchanged.
+Tidak perlu mengubah kode Android selama dashboard masih membaca field JSON hasil normalisasi.
 
 ---
 
@@ -414,67 +472,71 @@ As long as your dashboard consumes the normalized JSON fields, the backend remai
 
 ## BLE
 
-Advantages:
+Kelebihan:
 
-- No hotspot required
-- Lower power consumption
-- Easy connection
+- Tidak membutuhkan hotspot
+- Konsumsi daya lebih rendah
+- Koneksi sederhana
+- Cocok untuk paket `fast`
 
-Disadvantages:
+Kekurangan:
 
-- Lower bandwidth
-- Possible packet fragmentation
-
----
+- Bandwidth lebih kecil
+- Paket bisa terfragmentasi
+- Perlu proses reassembly JSON di Android
 
 ## WiFi
 
-Advantages:
+Kelebihan:
 
-- Higher bandwidth
-- Lower latency
-- More reliable full packet delivery
+- Bandwidth lebih besar
+- Latency lebih rendah
+- Pengiriman paket lengkap lebih stabil
+- Lebih cocok untuk data `full`
 
-Disadvantages:
+Kekurangan:
 
-- Higher power consumption
+- Konsumsi daya lebih tinggi
+- Perlu koneksi WiFi ke ESP32
 
 ---
 
 # Roadmap
 
-Future improvements may include:
+Pengembangan berikutnya dapat mencakup:
 
-- Android Auto support
-- GPS integration
+- Dukungan Android Auto
+- Integrasi GPS lebih lanjut
 - Trip computer
-- Ride statistics
+- Statistik perjalanan
 - CAN logger
-- Telemetry recording
+- Perekaman telemetry
 - Theme manager
-- Multi-language support
-- Cloud synchronization
+- Multi bahasa
+- Sinkronisasi cloud
+- Mode dashboard ringkas
+- Mode dashboard navigasi
 
 ---
 
-# Credits
+# Kredit
 
 ### ESP32 CAN Gateway
 
-Created by:
+Dibuat oleh:
 
 https://github.com/zexry619/votol-esp32-can-bus
 
-### Dashboard Development
+### Pengembangan Dashboard
 
 Chandra Cahyo
 
 ---
 
-# License
+# Lisensi
 
-This project is released under a non-commercial license.
+Project ini dirilis dengan lisensi non-komersial.
 
-Personal, educational, and hobbyist use is permitted.
+Penggunaan pribadi, edukasi, dan hobi diperbolehkan.
 
-Commercial use, resale, redistribution in commercial products, or paid services based on this project require prior written permission from the author.
+Penggunaan komersial, penjualan ulang, redistribusi dalam produk komersial, atau layanan berbayar yang berbasis project ini membutuhkan izin tertulis terlebih dahulu dari pembuat.
