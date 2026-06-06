@@ -237,7 +237,7 @@ body{
 
 .speed-box{
 
-    width:400px;
+    width:412px;
     height:180px;
 
     background:#050505;
@@ -269,14 +269,14 @@ body{
     position:absolute;
     top:20px;
     right:20px;
-    font-size:30px;
+    font-size:28px;
     color:#00ffff;
     z-index:40;
     display:none;
 }
 
 .speed{
-    font-size:115px;
+    font-size:120px;
     font-weight:700;
     line-height:1;
     color:#fff0a0;
@@ -292,8 +292,8 @@ body{
 /* ===================================================== */
 
 .rpm-info {
-    width:187px;
-    height:112px;
+    width:210px;
+    height:110px;
     position:absolute;
     left:73%;
     top:31%;
@@ -307,15 +307,14 @@ body{
     color: #fff0a0;
     letter-spacing: 1px;
     text-align: right;
-    padding-right: 15px;
-    padding-top: 15px;
+    padding-right: 10px;
+    padding-top: 20px;
 }
 
 .rpm-unit {
-    font-size: 16px;
+    font-size: 18px;
     opacity: 0.8;
     color:#ccc;
-    padding-top: 5px;
 }
 
 /* ===================================================== */
@@ -339,7 +338,7 @@ body{
     display:flex;
     justify-content:space-between;
     margin-bottom:10px;
-    font-size:26px;
+    font-size:28px;
     color:#ccc;
 }
 
@@ -385,7 +384,7 @@ body{
 }
 
 .info .value{
-    font-size:50px;
+    font-size:48px;
     color:#fff0a0;
 }
 
@@ -459,8 +458,8 @@ body{
 /* ===================================================== */
 
 .time-info {
-    width:187px;
-    height:112px;
+    width:210px;
+    height:110px;
     position:absolute;
     left:73%;
     top:69%;
@@ -470,7 +469,7 @@ body{
     border:8px solid #333;
     box-shadow: 10px 0 30px rgba(0,0,0,0.8);
 
-    font-size: 16px;
+    font-size: 18px;
     opacity: 0.8;
     color:#ccc;
     letter-spacing: 1px;
@@ -482,7 +481,6 @@ body{
 .time-hours-minutes {
     font-size: 28px;
     color: #fff0a0;
-    padding-top: 5px;
 }
 
 /* ===================================================== */
@@ -924,7 +922,8 @@ function updateDashboard() {
     let socket = new WebSocket(wsUrl);
 
     socket.onopen = () => {
-        document.getElementById('curmode').innerText = "connecting";
+//        document.getElementById('curmode').innerText = "connecting";
+        return
     }
     
     socket.onmessage = (event) => {
@@ -941,6 +940,7 @@ function updateDashboard() {
                 if (data.gpsSpeed !== undefined && data.gpsSpeed !== null) {
                     speed = data.gpsSpeed;
                     //sourceIcon.innerText = "🛰";
+                    //sourceIcon.innerText = "🛰️";
                     sourceIcon.innerText = "📡";
                     sourceIcon.style.display = "block";   // GPS
                 } else {
@@ -949,7 +949,7 @@ function updateDashboard() {
                     sourceIcon.style.display = "none";    // VOTOL
                 }
 
-                document.getElementById('speed').innerText = speed.toFixed(0);
+                document.getElementById('speed').innerText = Math.round(speed);
             }
             if (data.rpm !== undefined) {
                 rpm = data.rpm;
@@ -961,7 +961,7 @@ function updateDashboard() {
 
                 // Nilai teks tetap mengikuti data aktual.
                 if(document.getElementById('battCurr')) {
-                    if (ampere < 0)
+                    if (ampere < 1)
                         document.getElementById('battCurr').innerText = 0 - ampere + ' A';
                     else
                         document.getElementById('battCurr').innerText = '+' + ampere + ' A';
@@ -970,7 +970,7 @@ function updateDashboard() {
             if (data.power !== undefined) {
                 battPow = data.power;
                 if (document.getElementById('battPow')) {
-                    if (battPow < 0)
+                    if (battPow < 1)
                         document.getElementById('battPow').innerText = 0 - battPow + '  W';
                     else
                         document.getElementById('battPow').innerText = '+' + battPow + '  W';
@@ -1016,7 +1016,8 @@ function updateDashboard() {
     };
 
     socket.onclose = () => {
-        setTimeout(updateDashboard, 2000);
+//        document.getElementById('curmode').innerText = "disconnected";
+        return
     };
 }
 
@@ -1058,9 +1059,9 @@ function updateDateTime() {
 updateDashboard();
 startNeedleAnimation();
 updateDateTime();
-//setInterval(updateDashboard,1000);
-//setInterval(startNeedleAnimation, 1000);
-//setInterval(updateDateTime, 1000);
+setInterval(updateDashboard,100);
+setInterval(startNeedleAnimation, 100);
+setInterval(updateDateTime, 100);
 
 
 /* ===================================================== */
