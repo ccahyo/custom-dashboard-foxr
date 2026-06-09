@@ -270,7 +270,6 @@ body{
     top:20px;
     right:20px;
     font-size:28px;
-    color:#00ffff;
     z-index:40;
     display:none;
 }
@@ -939,14 +938,16 @@ function updateDashboard() {
 
                 if (data.gpsSpeed !== undefined && data.gpsSpeed !== null) {
                     speed = data.gpsSpeed;
-                    //sourceIcon.innerText = "🛰";
-                    //sourceIcon.innerText = "🛰️";
-                    sourceIcon.innerText = "📡";
-                    sourceIcon.style.display = "block";   // GPS
+                    //sourceIcon.innerText = "🛰";   // GPS
+                    //sourceIcon.innerText = "🛰️";   // GPS
+                    sourceIcon.innerText = "📡";   // GPS
+                    //sourceIcon.style.display = "block";
                 } else {
                     speed = data.speed ?? 0;
-                    sourceIcon.innerText = "";
-                    sourceIcon.style.display = "none";    // VOTOL
+                    //sourceIcon.innerText = "🎛️";    // VOTOL
+                    //sourceIcon.innerText = "⚙️";    // VOTOL
+                    //sourceIcon.innerText = "";    // VOTOL
+                    sourceIcon.style.display = "none";
                 }
 
                 document.getElementById('speed').innerText = Math.round(speed);
@@ -1024,6 +1025,7 @@ function updateDashboard() {
 function updateDateTime() {
     const now = new Date();
 
+    /*
     const hari = [
         "Minggu", "Senin", "Selasa", "Rabu",
         "Kamis", "Jumat", "Sabtu"
@@ -1039,8 +1041,9 @@ function updateDateTime() {
     const date = String(now.getDate()).padStart(2, "0");
     const monthName = bulan[now.getMonth()];
     const year = now.getFullYear();
+    */
 
-    const hour = String(now.getHours()).padStart(2, "0");
+    const hour = String(now.getHours()).padStart(2, "");
     const minute = String(now.getMinutes()).padStart(2, "0");
     const second = String(now.getSeconds()).padStart(2, "0");
 
