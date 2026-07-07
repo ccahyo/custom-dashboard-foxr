@@ -15,6 +15,7 @@
     <uses-permission android:name="android.permission.BLUETOOTH_SCAN" android:usesPermissionFlags="neverForLocation"/>
 
     <uses-permission android:name="androidx.car.app.IOT_TEMPLATES"/>
+    <uses-feature android:name="android.hardware.type.automotive" android:required="false"/>
 
     <application android:icon="@drawable/pev_hud_icon" android:roundIcon="@drawable/pev_hud_icon" android:requestLegacyExternalStorage="true" android:allowBackup="true" android:usesCleartextTraffic="true" android:label="@string/app_name" android:theme="@style/Theme.AppCompat.NoActionBar">
         <meta-data android:name="com.google.android.gms.car.application" android:resource="@xml/automotive_app_desc"/>
@@ -25,10 +26,18 @@
             </intent-filter>
         </activity>
         <service android:name=".car.VotolCarService" android:exported="true" android:label="@string/app_name" android:icon="@drawable/pev_hud_icon" android:roundIcon="@drawable/pev_hud_icon">
+
             <intent-filter>
                 <action android:name="androidx.car.app.CarAppService"/>
                 <category android:name="androidx.car.app.category.IOT"/>
             </intent-filter>
+
+            <intent-filter>
+                <action android:name="androidx.car.app.action.IOT"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <data android:scheme="geo"/>
+            </intent-filter>
+
             <meta-data android:name="androidx.car.app.minCarApiLevel" android:value="1"/>
         </service>
     </application>

@@ -32,7 +32,7 @@ public class VotolDashboardScreen extends Screen {
                 .addRow(row("CTRL Temp",bar(ctrl,100)+" "+ctrl+"°C"))
                 .addRow(row("BATT Temp",bar(batt,100)+" "+batt+"°C"))
                 .build();
-        return new PaneTemplate.Builder(pane).setTitle("FOX-R Dashboard").setHeaderAction(Action.APP_ICON).build();
+        return new PaneTemplate.Builder(pane).setTitle("PEV HUD").setHeaderAction(Action.APP_ICON).build();
     }
     private Row row(String title,String value){ return new Row.Builder().setTitle(title).addText(value).build(); }
     private String bar(double value,double max){ int total=10; int filled=(int)Math.round(Math.max(0,Math.min(value,max))/max*total); StringBuilder sb=new StringBuilder(); for(int i=0;i<total;i++) sb.append(i<filled?'█':'░'); return sb.toString(); }

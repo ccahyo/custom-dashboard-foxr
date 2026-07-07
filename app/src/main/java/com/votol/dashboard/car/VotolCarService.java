@@ -12,6 +12,10 @@ public class VotolCarService extends CarAppService {
     @NonNull
     @Override
     public Session onCreateSession() {
+        DebugLogger.car(
+                this,
+                "VotolCarService.onCreateSession()"
+        );
         /*
         Toast.makeText(this,"VOTOL CarService onCreateSession",Toast.LENGTH_LONG).show();
         DebugLogger.car(this,"VotolCarService.onCreateSession()");
@@ -21,6 +25,10 @@ public class VotolCarService extends CarAppService {
     @NonNull
     @Override
     public HostValidator createHostValidator() {
+        DebugLogger.car(
+                this,
+                "VotolCarService.createHostValidator()"
+        );
         /*
         Toast.makeText(this,"VOTOL CarService createHostValidator",Toast.LENGTH_LONG).show();
         DebugLogger.car(this,"VotolCarService.createHostValidator()");

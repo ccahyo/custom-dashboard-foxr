@@ -14,7 +14,7 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 
-import androidx.car.app.connection.CarConnection;
+//import androidx.car.app.connection.CarConnection;
 
 import com.votol.dashboard.ble.BleClient;
 import com.votol.dashboard.core.DashboardRepository;
@@ -49,6 +49,35 @@ public class MainActivity extends AppCompatActivity {
     private EspWifiClient espWifiClient;
     private BleClient bleClient;
     private GpsSpeedProvider gpsSpeedProvider;
+    private boolean isGPSEnabled = true;
+    private boolean transportLocked = false;
+    private boolean tryingBle = true;
+
+    private final Runnable transportSwitcher = new Runnable() {
+        @Override
+        public void run() {
+            if (transportLocked)
+                return;
+
+            if (tryingBle) {
+                if (espWifiClient != null)
+                    espWifiClient.stop();
+
+                if (bleClient != null)
+                    bleClient.startScan();
+            } else {
+                if (bleClient != null)
+                    bleClient.stop();
+
+                if (espWifiClient != null)
+                    espWifiClient.start();
+            }
+            tryingBle = !tryingBle;
+
+            mainHandler.postDelayed(this,10000);
+        }
+
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,7 +93,7 @@ public class MainActivity extends AppCompatActivity {
 
         initializeWebView();
         requestRuntimePermissions();
-        observeCarConnection();
+//        observeCarConnection();
 
 //        Toast.makeText(this, DebugLogger.getCarDebugStatus(this), Toast.LENGTH_LONG).show();
 
@@ -74,9 +103,11 @@ public class MainActivity extends AppCompatActivity {
         });
         dashboardServer.start();
 
-        gpsSpeedProvider = new GpsSpeedProvider(this, repository);
-        gpsSpeedProvider.start();
-
+        if ( isGPSEnabled ) {
+            gpsSpeedProvider = new GpsSpeedProvider(this, repository);
+            gpsSpeedProvider.start();
+        }
+/*
         bleClient = new BleClient(this, mainHandler, repository);
         mainHandler.postDelayed(() -> {
             if (bleClient != null) bleClient.startScan();
@@ -84,8 +115,47 @@ public class MainActivity extends AppCompatActivity {
 
         espWifiClient = new EspWifiClient(repository);
         espWifiClient.start();
+*/
+        bleClient = new BleClient(this, mainHandler, repository);
+        bleClient.setConnectionListener(new BleClient.ConnectionListener() {
+
+            @Override
+            public void onConnected() {
+                transportLocked = true;
+                if (espWifiClient != null)
+                    espWifiClient.stop();
+            }
+
+            @Override
+            public void onDisconnected() {
+                transportLocked = false;
+                mainHandler.removeCallbacks(transportSwitcher);
+                mainHandler.post(transportSwitcher);
+            }
+        });
+
+        espWifiClient = new EspWifiClient(repository);
+        espWifiClient.setConnectionListener(new EspWifiClient.ConnectionListener() {
+
+            @Override
+            public void onConnected() {
+                transportLocked = true;
+                if (bleClient != null)
+                    bleClient.stop();
+            }
+
+            @Override
+            public void onDisconnected() {
+                transportLocked = false;
+                mainHandler.removeCallbacks(transportSwitcher);
+                mainHandler.post(transportSwitcher);
+            }
+        });
+
+        mainHandler.post(transportSwitcher);
 
         dashboardView.loadUrl(LOCAL_URL);
+        dashboardView.setKeepScreenOn(true);
     }
 
     @Override
@@ -144,8 +214,9 @@ public class MainActivity extends AppCompatActivity {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
 
         if (requestCode == REQUEST_PERMISSIONS) {
-            if (bleClient != null) mainHandler.postDelayed(() -> bleClient.startScan(), 500);
-            if (gpsSpeedProvider != null) gpsSpeedProvider.start();
+            mainHandler.removeCallbacks(transportSwitcher);
+            mainHandler.post(transportSwitcher);
+            if (isGPSEnabled && gpsSpeedProvider != null) gpsSpeedProvider.start();
         }
     }
 
@@ -174,6 +245,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+/*
     private void observeCarConnection() {
         try {
             new CarConnection(this)
@@ -186,36 +258,32 @@ public class MainActivity extends AppCompatActivity {
                                                 CarConnection.CONNECTION_TYPE_NOT_CONNECTED
                                                 ? "Connected to a car head unit"
                                                 : "Not Connected to a car head unit";
-
-                                /*
                                 android.widget.Toast.makeText(
                                         MainActivity.this,
                                         message,
                                         android.widget.Toast.LENGTH_LONG
                                 ).show();
-                                 */
-
                                 com.votol.dashboard.debug.DebugLogger.d(message);
                             }
                     );
-
         } catch (Exception e) {
-            /*
             android.widget.Toast.makeText(
                     this,
                     "CarConnection error: " + e.getMessage(),
                     android.widget.Toast.LENGTH_LONG
             ).show();
-             */
         }
     }
+*/
 
     @Override
     protected void onDestroy() {
+        mainHandler.removeCallbacks(transportSwitcher);
+
         if (dashboardServer != null) dashboardServer.stop();
         if (espWifiClient != null) espWifiClient.stop();
         if (bleClient != null) bleClient.stop();
-        if (gpsSpeedProvider != null) gpsSpeedProvider.stop();
+        if (isGPSEnabled && gpsSpeedProvider != null) gpsSpeedProvider.stop();
 
         getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         DebugLogger.close();
